@@ -1,0 +1,15 @@
+services:
+  locker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: rfid-locker
+    ports:
+      - "8005:5000"          # server port 8005 -> app port 5000
+    env_file: .env           # holds DEVICE_KEY (never commit this file)
+    environment:
+      - DB_PATH=/data/locker.db
+      - NUM_LOCKERS=3
+    volumes:
+      - ./data:/data         # database survives restarts
+    restart: unless-stopped
