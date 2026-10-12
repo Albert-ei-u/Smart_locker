@@ -110,4 +110,4 @@ Keep changes to API routes and response formats documented so frontend and Ardui
 
 ## Team 5
 
-UTUJE Cadeau Isabelle · NAMBAJIMANA Sano Chretien · Niyompuhwe Robert · NYANZI Mandrake Gabriel · UWUMUREMYI Albert
+UWUMUREMYI Albert · UTUJE Cadeau Isabelle · NAMBAJIMANA Sano Chretien · Niyompuhwe Robert · NYANZI Mandrake Gabriel · ISHIMWE Linaa Assoumani 
