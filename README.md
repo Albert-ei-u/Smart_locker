@@ -13,7 +13,6 @@ team_5/
 │   ├── app.py
 │   ├── Dockerfile
 │   └── requirements.txt
-├── frontend/                # Browser-facing dashboard files
 │   └── templates/
 │       └── dashboard.html
 ├── data/                    # Local SQLite data; not committed
@@ -24,7 +23,7 @@ team_5/
 
 ## Responsibilities
 
-- **Frontend:** dashboard layout, styles, and browser JavaScript in `frontend/`.
+- **Frontend:** the Next.js dashboard in `web/`.
 - **Backend:** Flask routes, authentication, database access, and server-rendered pages in `backend/`.
 - **Arduino:** RFID reader, servo control, Wi-Fi communication, and hardware configuration in `arduino/`.
 
@@ -63,7 +62,7 @@ $env:NUM_LOCKERS = "3"
 python -m flask --app backend/app.py run --host 127.0.0.1 --port 5001 --no-reload
 ```
 
-Open `http://localhost:5001`.
+The backend API runs at `http://localhost:5001`. Start the Next.js dashboard from `web/` and open `http://localhost:3000`.
 
 ## Arduino setup
 
@@ -102,7 +101,7 @@ Device endpoints require the `X-Device-Key` header.
 
 1. Clone the repository.
 2. Copy `.env.example` to `.env`; do not commit `.env`.
-3. Work in the area you own: `frontend/`, `backend/`, or `arduino/`.
+3. Work in the area you own: `web/`, `backend/`, or `arduino/`.
 4. Create a branch for each feature.
 5. Test locally, commit, and open a pull request.
 

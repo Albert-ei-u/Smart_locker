@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkMutationRequest, postToBackend } from "@/lib/backend";
-import { normalizeExistingTag, normalizeTag } from "@/lib/tag";
+import { normalizeExistingTag } from "@/lib/tag";
 
 export const dynamic = "force-dynamic";
 

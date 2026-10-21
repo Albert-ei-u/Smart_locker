@@ -5,11 +5,11 @@ import { AlertCircle, WifiOff } from "lucide-react";
 
 interface BannerProps {
   isLive: boolean;
-  usersScraperError: boolean;
+  usersError: boolean;
 }
 
-export function Banner({ isLive, usersScraperError }: BannerProps) {
-  if (isLive && !usersScraperError) return null;
+export function Banner({ isLive, usersError }: BannerProps) {
+  if (isLive && !usersError) return null;
 
   return (
     <div className="banner-stack" role="alert">
@@ -23,12 +23,12 @@ export function Banner({ isLive, usersScraperError }: BannerProps) {
         </div>
       )}
 
-      {usersScraperError && (
+      {usersError && (
         <div className="status-banner banner-warning">
           <AlertCircle size={17} aria-hidden="true" />
           <p>
-            <strong>Backend parser error:</strong> Could not read the users list
-            from the backend. The legacy dashboard HTML may have changed.
+            <strong>Users unavailable:</strong> Could not load the users list
+            from the locker server. Retrying automatically...
           </p>
         </div>
       )}

@@ -32,7 +32,7 @@ export function Dashboard({
     newLogIds,
     users,
     isLive,
-    usersScraperError,
+    usersError,
     toasts,
     pendingOpenMap,
     registerTagPrefill,
@@ -96,7 +96,7 @@ export function Dashboard({
           <p>Live locker status and access activity</p>
         </div>
 
-        <Banner isLive={isLive} usersScraperError={usersScraperError} />
+        <Banner isLive={isLive} usersError={usersError} />
         <StatsStrip lockers={lockers} logs={logs} />
 
         <section id="lockers" className="section-space scroll-mt-20">

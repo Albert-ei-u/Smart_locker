@@ -1,5 +1,4 @@
 import { getBackendUrl } from "@/lib/backend";
-import { fetchUsersFromBackend } from "@/lib/users-scraper";
 import { StatusResponse, User } from "@/lib/types";
 import { Dashboard } from "@/components/Dashboard";
 
@@ -27,18 +26,21 @@ export default async function Page() {
       initialStatus = await statusRes.json().catch(() => null);
     }
 
-    // 2. Fetch users list via server-side scraper
-    const usersResult = await fetchUsersFromBackend(backendUrl).catch(
-      () => null
-    );
+    // 2. Fetch the complete users list through the JSON API
+    const usersRes = await fetch(
+      `${backendUrl.replace(/\/$/, "")}/api/users`,
+      {
+        method: "GET",
+        cache: "no-store",
+        signal: AbortSignal.timeout(3000),
+      }
+    ).catch(() => null);
 
-    if (usersResult) {
-      if (usersResult.users) {
-        initialUsers = usersResult.users;
-      }
-      if (usersResult.error) {
-        initialUsersError = usersResult.error;
-      }
+    if (usersRes && usersRes.ok) {
+      const usersData = await usersRes.json().catch(() => null);
+      if (usersData?.users) initialUsers = usersData.users;
+    } else if (usersRes) {
+      initialUsersError = "backend_unreachable";
     }
   } catch (error) {
     // Do not return a 500 if backend is unreachable at render time.

@@ -31,7 +31,7 @@ Browser (Admin)
 ### Why a Backend-for-Frontend (BFF)?
 1. **CORS Isolation:** The Flask backend exposes no CORS headers. Running mutations directly from the browser would be blocked. All backend calls route server-side via Next.js route handlers.
 2. **Clean JSON Contract:** Flask returns `302 Found` redirects with URL-encoded messages (`/?msg=...`). The BFF catches these server-side and translates them into typed `{ ok: boolean, message: string }` JSON responses.
-3. **Users List Bridge:** The Flask JSON API (`/api/status`) does not return registered users who lack an assigned locker. The Next.js server parses the full user directory directly from the legacy HTML page (`GET /`) using Cheerio.
+3. **Users List Bridge:** The Flask JSON API (`/api/users`) returns the full registered user directory, including users who do not have a locker assigned.
 4. **Security & Validation:** Whitelists allowable backend endpoints, validates tag formats and limits input length, and blocks cross-origin form submissions. The `DEVICE_KEY` is never exposed to the browser or Next.js app.
 
 ---
@@ -51,7 +51,7 @@ Browser (Admin)
 
 - There is no authentication on any admin action in the legacy or Next.js dashboard.
 - There is no device heartbeat, so the "Server connected" pill only means the browser can reach Next.js and Flask, not that the physical locker board is healthy.
-- The users list is read from the legacy dashboard HTML and depends on `frontend/templates/dashboard.html` staying unchanged.
+- The users list is read from Flask's JSON `/api/users` endpoint.
 - The feed shows the 15 newest events from the server plus any activity accumulated in the browser during the current session.
 - Remote-opening Locker 2 or 3 shows the door as open for roughly 20 s because only Locker 1 has real hardware attached.
 
@@ -155,10 +155,6 @@ npm run build     # Verify Next.js standalone production build
 
 ---
 
-## 9. Users Scraper Details
+## 9. Users API
 
-Because `/api/status` omits users who do not hold a locker, `lib/users-scraper.ts` parses `GET /` using `cheerio`:
-- Primary: extracts `name` from `td strong` and `tag` from `td code` in the Users table.
-- Sanity fallback: inspects `<select name="tag">` options.
-- Automatically decodes HTML entities (e.g. `&lt;b&gt;` -> `<b>`).
-- If parsing fails, returns HTTP `502 { error: "users_unreadable" }` to trigger an explanatory banner in the UI rather than displaying an empty state.
+The Flask backend exposes `GET /api/users`, which returns every registered user and their optional assigned locker. The Next.js route handler forwards that JSON response to the browser, so the dashboard no longer depends on Flask-rendered HTML.

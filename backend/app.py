@@ -8,14 +8,15 @@ The ESP8266 talks to these API routes:
   POST /api/door   {"locker": 1, "state": "locked"}   (board says the door closed again)
 Both need the header  X-Device-Key: <DEVICE_KEY>
 
-The dashboard is at  /
+The Next.js dashboard calls the JSON API routes below.
 """
 import os
 import sqlite3
 from datetime import datetime
 from functools import wraps
+from urllib.parse import quote_plus
 
-from flask import Flask, g, jsonify, redirect, render_template, request, url_for
+from flask import Flask, g, jsonify, redirect, request
 
 DB_PATH = os.environ.get("DB_PATH", "/data/locker.db")
 DEVICE_KEY = os.environ.get("DEVICE_KEY", "change-me")
@@ -23,14 +24,7 @@ NUM_LOCKERS = int(os.environ.get("NUM_LOCKERS", "3"))
 # If the board never reports "locked" (power cut, Wi-Fi lost), show locked again after this long.
 DOOR_TIMEOUT = int(os.environ.get("DOOR_TIMEOUT", "20"))
 
-app = Flask(
-    __name__,
-    # Keep the browser-facing files in the separate frontend/ area while
-    # allowing the backend to render them locally and in Docker.
-    template_folder=os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "frontend", "templates")
-    ),
-)
+app = Flask(__name__)
 
 
 # ---------------------------------------------------------------- database
@@ -188,7 +182,18 @@ def api_status():
     return jsonify(lockers=lockers_view(), logs=logs_view(15))
 
 
-# ---------------------------------------------------------------- dashboard
+@app.get("/api/users")
+def api_users():
+    """Return every registered user, including users without a locker."""
+    rows = db().execute(
+        """SELECT u.tag, u.name, l.id AS locker_id
+           FROM users u LEFT JOIN lockers l ON l.owner_tag = u.tag
+           ORDER BY u.name"""
+    ).fetchall()
+    return jsonify(users=[dict(row) for row in rows])
+
+
+# ---------------------------------------------------------------- dashboard data and mutations
 def lockers_view():
     rows = db().execute(
         """SELECT l.id, l.owner_tag, l.assigned_at, l.door, l.door_changed, l.door_by, u.name
@@ -216,20 +221,14 @@ def logs_view(limit):
     return [dict(r) for r in rows]
 
 
+def message_redirect(message):
+    return redirect("/?msg=" + quote_plus(message))
+
+
 @app.get("/")
-def dashboard():
-    users = db().execute(
-        """SELECT u.tag, u.name, l.id AS locker_id
-           FROM users u LEFT JOIN lockers l ON l.owner_tag = u.tag
-           ORDER BY u.name"""
-    ).fetchall()
-    return render_template(
-        "dashboard.html",
-        lockers=lockers_view(),
-        users=users,
-        logs=logs_view(15),
-        msg=request.args.get("msg", ""),
-    )
+def service_info():
+    """Small health response; the dashboard is served by Next.js."""
+    return jsonify(service="rfid-locker-backend", status="ok")
 
 
 @app.post("/users/add")
@@ -237,10 +236,10 @@ def add_user():
     tag = clean_tag(request.form.get("tag"))
     name = (request.form.get("name") or "").strip()
     if not tag or not name:
-        return redirect(url_for("dashboard", msg="Enter both a name and a tag ID"))
+        return message_redirect("Enter both a name and a tag ID")
     db().execute("INSERT OR REPLACE INTO users (tag, name) VALUES (?,?)", (tag, name))
     db().commit()
-    return redirect(url_for("dashboard", msg=f"Added {name}"))
+    return message_redirect(f"Added {name}")
 
 
 @app.post("/users/delete")
@@ -249,14 +248,14 @@ def delete_user():
     db().execute("UPDATE lockers SET owner_tag=NULL, assigned_at=NULL WHERE owner_tag=?", (tag,))
     db().execute("DELETE FROM users WHERE tag=?", (tag,))
     db().commit()
-    return redirect(url_for("dashboard", msg="User removed"))
+    return message_redirect("User removed")
 
 
 @app.post("/lockers/<int:locker_id>/assign")
 def assign(locker_id):
     tag = clean_tag(request.form.get("tag"))
     if not db().execute("SELECT 1 FROM users WHERE tag=?", (tag,)).fetchone():
-        return redirect(url_for("dashboard", msg="Choose a user first"))
+        return message_redirect("Choose a user first")
     # one locker per user: free any locker they already hold
     db().execute("UPDATE lockers SET owner_tag=NULL, assigned_at=NULL WHERE owner_tag=?", (tag,))
     db().execute(
@@ -264,7 +263,7 @@ def assign(locker_id):
     )
     log(tag, locker_id, "ASSIGNED", f"locker {locker_id} assigned")
     db().commit()
-    return redirect(url_for("dashboard", msg=f"Locker {locker_id} assigned"))
+    return message_redirect(f"Locker {locker_id} assigned")
 
 
 @app.post("/lockers/<int:locker_id>/release")
@@ -273,7 +272,7 @@ def release(locker_id):
     db().execute("UPDATE lockers SET owner_tag=NULL, assigned_at=NULL WHERE id=?", (locker_id,))
     log(row["owner_tag"] if row else None, locker_id, "RELEASED", f"locker {locker_id} is free")
     db().commit()
-    return redirect(url_for("dashboard", msg=f"Locker {locker_id} is now free"))
+    return message_redirect(f"Locker {locker_id} is now free")
 
 
 @app.post("/lockers/<int:locker_id>/open")
@@ -281,7 +280,7 @@ def remote_open(locker_id):
     db().execute("UPDATE lockers SET pending_open=1 WHERE id=?", (locker_id,))
     log(None, locker_id, "REMOTE OPEN", "opened from dashboard")
     db().commit()
-    return redirect(url_for("dashboard", msg=f"Opening locker {locker_id}..."))
+    return message_redirect(f"Opening locker {locker_id}...")
 
 
 init_db()

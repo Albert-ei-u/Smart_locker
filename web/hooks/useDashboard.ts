@@ -222,9 +222,9 @@ export function useDashboard(
 
   const isLive = !statusError && Boolean(statusData);
 
-  const usersScraperError =
-    (usersError?.data?.error === "users_unreadable" && usersLoadTried) ||
-    (!usersLoadTried && initialUsersError === "users_unreadable");
+  const usersUnavailable =
+    (Boolean(usersError) && usersLoadTried) ||
+    (!usersLoadTried && Boolean(initialUsersError));
 
   const usersWithLockers: User[] = (usersData?.users || []).map((user) => {
     const assignedLocker = statusData?.lockers.find(
@@ -366,7 +366,7 @@ export function useDashboard(
     newLogIds,
     users: usersWithLockers,
     isLive,
-    usersScraperError,
+    usersError: usersUnavailable,
     toasts,
     pendingOpenMap,
     registerTagPrefill,

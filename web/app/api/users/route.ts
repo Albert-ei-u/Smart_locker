@@ -5,26 +5,31 @@ import {
   postToBackend,
 } from "@/lib/backend";
 import { normalizeTag, validateTag } from "@/lib/tag";
-import { fetchUsersFromBackend } from "@/lib/users-scraper";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const backendUrl = getBackendUrl();
-  const result = await fetchUsersFromBackend(backendUrl);
+  try {
+    const res = await fetch(`${getBackendUrl().replace(/\/$/, "")}/api/users`, {
+      method: "GET",
+      cache: "no-store",
+      signal: AbortSignal.timeout(3000),
+    });
 
-  if (result.error) {
-    const isUnreadable = result.error === "users_unreadable";
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: "Cannot reach the locker server", users: [] },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json(await res.json());
+  } catch {
     return NextResponse.json(
-      {
-        error: isUnreadable ? "users_unreadable" : "Cannot reach the locker server",
-        users: [],
-      },
+      { error: "Cannot reach the locker server", users: [] },
       { status: 502 }
     );
   }
-
-  return NextResponse.json({ users: result.users || [] });
 }
 
 export async function POST(request: NextRequest) {
