@@ -2,6 +2,8 @@
 
 Team 5's connected locker system uses an ESP8266, RFID authentication, a Flask backend, and a web dashboard.
 
+For the complete current setup, testing workflow, API map, wiring, and learning path, see [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md).
+
 ## Repository layout
 
 ```text
