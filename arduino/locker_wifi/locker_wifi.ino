@@ -17,10 +17,10 @@
 #define SERVO_PIN D1
 
 // ---- Settings you MUST change ----
-const char* WIFI_NAME     = "YOUR_WIFI_NAME";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-const char* SERVER        = "http://10.12.75.109:8005";  // server IP + Team 5 port
-const char* DEVICE_KEY    = "change-me";                 // same as DEVICE_KEY in the server's .env
+const char* WIFI_NAME     = "connected";
+const char* WIFI_PASSWORD = "Albert@here###";
+const char* SERVER = "http://192.168.137.1:5001";  // laptop hotspot IP + local Flask port
+const char* DEVICE_KEY    = "team5@rca.robotics";                 // same as DEVICE_KEY in the server's .env
 // ---- Settings you can change ----
 const String BACKUP_KEY   = "03 1A B0 01";  // still opens Locker 1 if the server is unreachable
 const int LOCKED_ANGLE    = 0;
