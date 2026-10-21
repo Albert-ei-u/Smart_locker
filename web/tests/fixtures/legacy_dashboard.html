@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Team 5 Smart Locker</title>
+</head>
+<body>
+  <div class="card" id="card-1">
+    <form class="row" method="post" action="/lockers/1/assign">
+      <select name="tag">
+        <option value="">Assign to…</option>
+        <option value="03 1A B0 01">Blue fob</option>
+        <option value="FE 23 9C 04">Second tag</option>
+        <option value="AA BB CC DD">&lt;b&gt;x&lt;/b&gt; &amp; &#34;q&#34; &#39;z&#39;</option>
+      </select>
+    </form>
+  </div>
+
+  <h2>Users</h2>
+  <div class="panel">
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>Tag ID</th><th>Locker</th><th></th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Blue fob</strong></td>
+          <td><code>03 1A B0 01</code></td>
+          <td>1</td>
+          <td><button>Remove</button></td>
+        </tr>
+        <tr>
+          <td><strong>Second tag</strong></td>
+          <td><code>FE 23 9C 04</code></td>
+          <td>–</td>
+          <td><button>Remove</button></td>
+        </tr>
+        <tr>
+          <td><strong>&lt;b&gt;x&lt;/b&gt; &amp; &#34;q&#34; &#39;z&#39;</strong></td>
+          <td><code>aa:bb:cc:dd</code></td>
+          <td>–</td>
+          <td><button>Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</body>
+</html>

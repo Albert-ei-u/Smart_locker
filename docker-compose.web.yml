@@ -1,0 +1,12 @@
+services:
+  web:
+    build:
+      context: ./web
+    container_name: rfid-locker-web
+    ports:
+      - "8006:3000"            # Next.js dashboard; Flask stays on 8005 for the ESP8266
+    environment:
+      - BACKEND_URL=http://locker:5000
+    depends_on:
+      - locker
+    restart: unless-stopped
